@@ -1,0 +1,43 @@
+image: guix
+
+packages:
+  - autoconf
+  - gcc-toolchain
+  - make
+  - ncurses
+  - pkg-config
+  - texinfo
+  - tree-sitter
+
+sources:
+  - https://git.sr.ht/~johnmuhl/lua-ts-mode
+
+tasks:
+  - build-emacs: |
+      git clone --quiet --depth=1 --branch=emacs-29 $EMACS_URL
+      cd emacs
+      echo "EMACS REV: $EMACS_URL/commit/$(git rev-parse --short=11 HEAD)"
+      ./autogen.sh
+      ./configure --without-all --with-tree-sitter
+      make -j$(nproc)
+  - build-grammar: |
+      mkdir -p .emacs.d/tree-sitter
+      git clone --quiet --depth=1 $GRAMMAR_URL
+      cd tree-sitter-lua/src
+      echo "TREE-SITTER-LUA REV: $GRAMMAR_URL/commit/$(git rev-parse --short=11 HEAD)"
+      gcc -fPIC -c -I. parser.c
+      gcc -fPIC -c -I. scanner.c
+      gcc -fPIC -shared *.o -o ~/.emacs.d/tree-sitter/libtree-sitter-lua.so
+  - check: |
+      cd lua-ts-mode
+      ~/emacs/src/emacs -batch -l ert -l lua-ts-mode.el \
+          -l lua-ts-mode-tests.el -f ert-run-tests-batch-and-exit
+
+triggers:
+  - action: email
+    condition: always
+    to: ~johnmuhl/builds@lists.sr.ht
+
+environment:
+  EMACS_URL: https://git.sr.ht/~emacs/emacs
+  GRAMMAR_URL: https://github.com/MunifTanjim/tree-sitter-lua
