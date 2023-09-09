@@ -27,6 +27,10 @@
   (skip-unless (treesit-ready-p 'lua))
   (ert-test-erts-file (ert-resource-file "indent.erts")))
 
+(ert-deftest lua-ts-mode-test-movement ()
+  (skip-unless (treesit-ready-p 'lua))
+  (ert-test-erts-file (ert-resource-file "movement.erts")))
+
 (provide 'lua-ts-mode-tests)
 
 ;;; lua-ts-mode-tests.el ends here
