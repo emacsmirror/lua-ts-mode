@@ -61,7 +61,7 @@
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-buffer "Lua"
+(defcustom lua-ts-inferior-buffer "*Lua*"
   "Name of the inferior Lua buffer."
   :type 'string
   :safe 'stringp
@@ -328,8 +328,8 @@ Calls REPORT-FN directly."
 (defun lua-ts-inferior-lua ()
   "Run a Lua interpreter in an inferior process."
   (interactive)
-  (let* ((name lua-ts-inferior-buffer)
-         (buffer (concat "*" name "*"))
+  (let* ((buffer lua-ts-inferior-buffer)
+         (name (string-replace "*" "" buffer))
          (program lua-ts-inferior-program)
          (prompt-regexp lua-ts-inferior-prompt-regexp)
          (switches lua-ts-inferior-options)
