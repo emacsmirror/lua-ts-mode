@@ -43,48 +43,53 @@
 (declare-function treesit-parser-create "treesit.c")
 (declare-function treesit-search-subtree "treesit.c")
 
+(defgroup lua-ts nil
+  "Major mode for editing Lua files."
+  :prefix "lua-ts-"
+  :group 'languages)
+
 (defcustom lua-ts-indent-offset 4
   "Number of spaces for each indentation step in `lua-ts-mode'."
   :type 'natnum
   :safe 'natnump
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-luacheck-program (executable-find "luacheck")
   "Location of the Luacheck program."
   :type '(choice (const nil) (file :must-match t))
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-inferior-buffer "Lua"
   "Name of the inferior Lua buffer."
   :type 'string
   :safe 'stringp
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-inferior-program (executable-find "lua")
   "Program to run in the inferior Lua process."
   :type '(choice (const nil) (file :must-match t))
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-inferior-options '("-i")
   "Command line options for the inferior Lua process."
   :type '(repeat string)
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-inferior-startfile nil
   "File to load into the inferior Lua process at startup."
   :type '(choice (const nil) (file :must-match t))
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defcustom lua-ts-inferior-prompt-regexp "^>>?[[:blank:]]"
   "Regular expression matching the prompt of the inferior Lua process."
   :type 'regexp
-  :group 'lua
+  :group 'lua-ts
   :version "30.1")
 
 (defvar lua-ts--builtins
