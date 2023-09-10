@@ -55,9 +55,9 @@
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-luacheck-program (executable-find "luacheck")
+(defcustom lua-ts-luacheck-program "luacheck"
   "Location of the Luacheck program."
-  :type '(choice (const nil) (file :must-match t))
+  :type '(choice (const nil) string)
   :group 'lua-ts
   :version "30.1")
 
@@ -68,9 +68,9 @@
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-program (executable-find "lua")
+(defcustom lua-ts-inferior-program "lua"
   "Program to run in the inferior Lua process."
-  :type '(choice (const nil) (file :must-match t))
+  :type '(choice (const nil) string)
   :group 'lua-ts
   :version "30.1")
 
