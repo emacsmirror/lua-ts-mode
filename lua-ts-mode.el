@@ -421,8 +421,8 @@ Calls REPORT-FN directly."
 
   (add-hook 'flymake-diagnostic-functions #'lua-ts-flymake-luacheck nil 'local))
 
-(if (treesit-ready-p 'lua)
-    (add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode)))
+(when (treesit-ready-p 'lua)
+  (add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode)))
 
 (provide 'lua-ts-mode)
 
