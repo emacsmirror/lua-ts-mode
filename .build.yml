@@ -14,7 +14,7 @@ sources:
 
 tasks:
   - build-emacs: |
-      git clone --quiet --depth=1 --branch=emacs-29 $EMACS_URL
+      git clone --quiet --depth=1 --branch=master $EMACS_URL
       cd emacs
       echo "EMACS REV: $EMACS_URL/commit/$(git rev-parse --short=11 HEAD)"
       ./autogen.sh
