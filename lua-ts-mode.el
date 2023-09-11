@@ -340,7 +340,9 @@ Calls REPORT-FN directly."
                   comint-prompt-read-only t
                   comint-prompt-regexp prompt-regexp
                   comint-use-prompt-regexp t))
-    (pop-to-buffer buffer)))
+    (select-window (display-buffer buffer '((display-buffer-reuse-window
+                                             display-buffer-pop-up-frame)
+                                            (reusable-frames . t))))))
 
 ;;;###autoload
 (define-derived-mode lua-ts-mode prog-mode "Lua"
