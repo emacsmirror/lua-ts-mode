@@ -413,7 +413,7 @@ Calls REPORT-FN directly."
                          (or (seq "--[[" (0+ space) eol)
                              (seq symbol-start
                                   (or "do" "for" "if" "repeat" "while"
-                                      (seq (** 0 1 (seq "local" (1+ space)))
+                                      (seq (? (seq "local" (1+ space)))
                                            "function"))
                                   symbol-end)))))
 
