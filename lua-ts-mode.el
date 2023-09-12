@@ -5,6 +5,7 @@
 ;; Author: John Muhl <jm@pub.pink>
 ;; Created: June 27, 2023
 ;; Keywords: lua languages tree-sitter
+;; URL: https://git.sr.ht/~johnmuhl/lua-ts-mode
 
 ;; This file is part of GNU Emacs.
 
