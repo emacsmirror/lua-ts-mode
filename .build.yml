@@ -12,6 +12,9 @@ packages:
 sources:
   - https://git.sr.ht/~johnmuhl/lua-ts-mode
 
+artifacts:
+  - .emacs.d/tree-sitter/libtree-sitter-lua.so
+
 tasks:
   - build-emacs: |
       git clone --quiet --depth=1 --branch=master $EMACS_URL
