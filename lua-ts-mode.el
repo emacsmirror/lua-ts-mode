@@ -92,6 +92,13 @@
   :group 'lua-ts
   :version "30.1")
 
+(defcustom inferior-lua-history nil
+  "File used to save command history of the inferior Lua process."
+  :type '(choice (const nil) file)
+  :safe 'string-or-null-p
+  :group 'lua-ts
+  :version "30.1")
+
 (defvar lua-ts--builtins
   '("assert" "bit32" "collectgarbage" "coroutine" "debug" "dofile"
     "error" "getmetatable" "io" "ipairs" "load" "loadfile"
@@ -406,29 +413,39 @@ Calls REPORT-FN directly."
 (when (treesit-ready-p 'lua)
   (add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode)))
 
+(defun inferior-lua--write-history (process _event)
+  "Write history file for PROCESS."
+  (when-let* ((buffer (process-buffer process))
+              ((buffer-live-p buffer)))
+    (with-current-buffer buffer (comint-write-input-ring))))
+
 (define-derived-mode inferior-lua-mode comint-mode "Inferior Lua"
   "Major mode for interactive with an inferior Lua process."
   (setq-local comint-input-ignoredups t
+              comint-input-ring-file-name inferior-lua-history
               comint-prompt-read-only t
               comint-prompt-regexp inferior-lua-prompt
-              comint-use-prompt-regexp t))
+              comint-use-prompt-regexp t)
+  (comint-read-input-ring t))
 
 ;;;###autoload
 (defun inferior-lua ()
   "Run a Lua interpreter in an inferior process."
   (interactive)
   (let ((buffer (get-buffer-create inferior-lua-buffer)))
-    (set-buffer (apply (function make-comint)
+    (unless (comint-check-proc buffer)
+      (set-buffer (apply (function make-comint)
                        (string-replace "*" "" inferior-lua-buffer)
                        inferior-lua-program
                        inferior-lua-startfile
                        inferior-lua-options))
+      (with-current-buffer buffer (inferior-lua-mode))
+      (when inferior-lua-history
+        (set-process-sentinel (get-buffer-process (current-buffer))
+                              'inferior-lua--write-history)))
     (select-window (display-buffer buffer '((display-buffer-reuse-window
                                              display-buffer-pop-up-frame)
-                                            (reusable-frames . t))))
-    (unless (comint-check-proc buffer)
-      (with-current-buffer buffer
-        (inferior-lua-mode)))))
+                                            (reusable-frames . t))))))
 
 (provide 'lua-ts-mode)
 
