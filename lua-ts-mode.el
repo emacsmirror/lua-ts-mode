@@ -61,32 +61,32 @@
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-buffer "*Lua*"
+(defcustom inferior-lua-buffer "*Inferior Lua*"
   "Name of the inferior Lua buffer."
   :type 'string
   :safe 'stringp
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-program "lua"
+(defcustom inferior-lua-program "lua"
   "Program to run in the inferior Lua process."
   :type '(choice (const nil) string)
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-options '("-i")
+(defcustom inferior-lua-options '("-i")
   "Command line options for the inferior Lua process."
   :type '(repeat string)
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-startfile nil
+(defcustom inferior-lua-startfile nil
   "File to load into the inferior Lua process at startup."
   :type '(choice (const nil) (file :must-match t))
   :group 'lua-ts
   :version "30.1")
 
-(defcustom lua-ts-inferior-prompt-regexp "^>>?[[:blank:]]"
+(defcustom inferior-lua-prompt "^>>?[[:blank:]]"
   "Regular expression matching the prompt of the inferior Lua process."
   :type 'regexp
   :group 'lua-ts
@@ -325,26 +325,6 @@ Calls REPORT-FN directly."
       (process-send-eof lua-ts--flymake-process))))
 
 ;;;###autoload
-(defun lua-ts-inferior-lua ()
-  "Run a Lua interpreter in an inferior process."
-  (interactive)
-  (let* ((buffer lua-ts-inferior-buffer)
-         (name (string-replace "*" "" buffer))
-         (program lua-ts-inferior-program)
-         (prompt-regexp lua-ts-inferior-prompt-regexp)
-         (switches lua-ts-inferior-options)
-         (startfile lua-ts-inferior-startfile))
-    (unless (comint-check-proc buffer)
-      (set-buffer (apply (function make-comint) name program startfile switches))
-      (setq-local comint-input-ignoredups t
-                  comint-prompt-read-only t
-                  comint-prompt-regexp prompt-regexp
-                  comint-use-prompt-regexp t))
-    (select-window (display-buffer buffer '((display-buffer-reuse-window
-                                             display-buffer-pop-up-frame)
-                                            (reusable-frames . t))))))
-
-;;;###autoload
 (define-derived-mode lua-ts-mode prog-mode "Lua"
   "Major mode for editing Lua files, powered by tree-sitter."
   :syntax-table lua-ts--syntax-table
@@ -425,6 +405,30 @@ Calls REPORT-FN directly."
 
 (when (treesit-ready-p 'lua)
   (add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode)))
+
+(define-derived-mode inferior-lua-mode comint-mode "Inferior Lua"
+  "Major mode for interactive with an inferior Lua process."
+  (setq-local comint-input-ignoredups t
+              comint-prompt-read-only t
+              comint-prompt-regexp inferior-lua-prompt
+              comint-use-prompt-regexp t))
+
+;;;###autoload
+(defun inferior-lua ()
+  "Run a Lua interpreter in an inferior process."
+  (interactive)
+  (let ((buffer (get-buffer-create inferior-lua-buffer)))
+    (set-buffer (apply (function make-comint)
+                       (string-replace "*" "" inferior-lua-buffer)
+                       inferior-lua-program
+                       inferior-lua-startfile
+                       inferior-lua-options))
+    (select-window (display-buffer buffer '((display-buffer-reuse-window
+                                             display-buffer-pop-up-frame)
+                                            (reusable-frames . t))))
+    (unless (comint-check-proc buffer)
+      (with-current-buffer buffer
+        (inferior-lua-mode)))))
 
 (provide 'lua-ts-mode)
 
