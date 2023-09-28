@@ -240,6 +240,17 @@
    '((ERROR) @font-lock-warning-face))
   "Tree-sitter font-lock settings for `lua-ts-mode'.")
 
+(defun lua-ts--first-child (node _p _b &rest _)
+  "Matches if NODE is the first among its siblings."
+  (= (treesit-node-index node) 1))
+
+(defun lua-ts--end-indent-offset (_n _p _b &rest _)
+  "Calculate indent offset based on `end' count."
+  (let* ((beg (line-beginning-position))
+         (end (line-end-position))
+         (count (count-matches "end" beg end)))
+    (- (* (1- count) lua-ts-indent-offset))))
+
 (defvar lua-ts--simple-indent-rules
   `((lua
      ((parent-is "chunk") column-0 0)
@@ -247,9 +258,11 @@
      ((parent-is "block") parent-bol 0)
      ((node-is "}") parent-bol 0)
      ((node-is ")") parent-bol 0)
+     ((node-is "do") standalone-parent 0)
+     ((node-is "then") standalone-parent 0)
      ((node-is "else_statement") parent-bol 0)
      ((node-is "elseif_statement") parent-bol 0)
-     ((node-is "end") parent-bol 0)
+     ((node-is "end") parent-bol lua-ts--end-indent-offset)
      ((node-is "until") parent-bol 0)
      ((parent-is "for_statement") parent-bol lua-ts-indent-offset)
      ((parent-is "function_declaration") parent-bol lua-ts-indent-offset)
@@ -258,9 +271,15 @@
      ((parent-is "else_statement") parent-bol lua-ts-indent-offset)
      ((parent-is "repeat_statement") parent-bol lua-ts-indent-offset)
      ((parent-is "while_statement") parent-bol lua-ts-indent-offset)
-     ((parent-is "table_constructor") parent-bol lua-ts-indent-offset)
-     ((parent-is "arguments") parent-bol lua-ts-indent-offset)
-     ((parent-is "parameters") parent-bol lua-ts-indent-offset)
+     ((and (parent-is "table_constructor") lua-ts--first-child)
+      parent-bol lua-ts-indent-offset)
+     ((parent-is "table_constructor") (nth-sibling 1) 0)
+     ((and (parent-is "arguments") lua-ts--first-child)
+      parent-bol lua-ts-indent-offset)
+     ((parent-is "arguments") (nth-sibling 1) 0)
+     ((and (parent-is "parameters") lua-ts--first-child)
+      parent-bol lua-ts-indent-offset)
+     ((parent-is "parameters") (nth-sibling 1) 0)
      ((parent-is "ERROR") no-indent 0))))
 
 (defvar lua-ts--syntax-table
